@@ -9,29 +9,12 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,900">
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
   <style>
-    /* resets */
-
-    * {
-      color: inherit;
-    }
-
-    input {
-      font: inherit;
-      border: unset;
-      background: unset;
-    }
-
-    input:focus {
-      outline: unset;
-    }
-
     :root {
       font: 1rem/1.175 "BlinkMacSystemFont", -apple-system, "Roboto", sans-serif;
     }
 
     #app {
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       width: 100vw;
@@ -40,10 +23,7 @@
       font-size: 8rem;
       color: hsl(0, 0%, 100%);
       background: hsl(240, 100%, 67%);
-    }
-
-    input {
-      text-align: center;
+      user-select: none;
     }
 
     img {
@@ -57,12 +37,7 @@
 <body>
 
   <div id="app">
-    <input type="text" v-model="message2"></input>
-    <p v-html="
-          message1.slice(0, 7) +
-          message2 +
-          message1.slice(12)
-    "></p>
+    <p v-html="incendio(lumos(wizard))"></p>
   </div>
 
   <script>
@@ -75,13 +50,28 @@
       return out
     }
 
+    // cast returns a spell (function) that decorates the wizard
+    function cast(emoji) {
+      if (!emoji) {
+        emoji = "¯\\_(ツ)_/¯"
+      }
+      return function (wizard) {
+        return emoji + wizard + emoji
+      }
+    }
+
     var app = new Vue({
       el: "#app",
       data: {
-        message1: "Hello, World! " + emojify("celebration"),
-        message2: "World"
+        wizard: emojify("wizard")
+      },
+      methods: {
+        lumos: cast(emojify("lumos")),
+        incendio: cast(emojify("incendio"))
       }
     })
+
+    app.wizard
 
   </script>
 
