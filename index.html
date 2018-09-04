@@ -78,15 +78,12 @@
 
 <body>
 
-  <div class="app" :class="{ 'theme--alive': is_open() && is_alive(), 'theme--dead': !is_alive() }">
+  <div class="app" :class="theme()">
     <p>
       Click the box!
       <br> The cat's...
-      <!--
-			 -->
-      <span v-html="cat" @click="quantum_fluctuation()" :class="{ jitter: is_alive() }"></span>
-      <!--
-			 -->!
+      <span v-html="cat" @click="quantum_fluctuation()" :class="jittering()"></span>
+      !
     </p>
   </div>
 
@@ -112,7 +109,6 @@
         cat: emojify("box"),
         alive_cats: [
           emojify("cat--smile"),
-          emojify("cat--cheer"),
           emojify("cat--laugh"),
           emojify("cat--love"),
           emojify("cat--smirk"),
@@ -148,6 +144,17 @@
             rand(...this.alive_cats),
             rand(...this.dead_cats),
           )
+        },
+        jittering: function () {
+          return {
+            jitter: this.is_alive()
+          }
+        },
+        theme: function () {
+          return {
+            'theme--alive': this.is_open() && this.is_alive(),
+            'theme--dead': !this.is_alive()
+          }
         }
       }
     })
