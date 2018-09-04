@@ -10,10 +10,23 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
   <style>
     :root {
+      --white: #ffffff;
+      --orange: #ff691f;
+      --yellow: #fab81e;
+      --lightgreen: #7fdbb6;
+      --green: #19cf86;
+      --lightblue: #91d2fa;
+      --blue: #1b95e0;
+      --grey: #abb8c2;
+      --red: #e81c4f;
+      --pink: #f58ea8;
+      --purple: #981ceb;
+      --black: #000000;
+
       font: 1rem/1.175 "BlinkMacSystemFont", -apple-system, "Roboto", sans-serif;
     }
 
-    #app {
+    .app {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,8 +34,7 @@
       height: 100vh;
       font-weight: 900;
       font-size: 8rem;
-      color: hsl(0, 0%, 100%);
-      background: hsl(240, 100%, 67%);
+      color: var(--green);
       user-select: none;
     }
 
@@ -32,32 +44,50 @@
       vertical-align: calc(-0.12109375em);
     }
 
-    .breathe--man {
-      animation: breathe 4.0s infinite;
+    .jitter {
+      display: inline-block;
+      animation: jitter 0.33s infinite alternate;
     }
 
-    .breathe--dog {
-      animation: breathe 0.5s infinite;
-    }
-
-    @keyframes breathe {
+    @keyframes jitter {
       0% {
-        transform: scale(0.95);
+        transform: rotate( 0deg);
       }
-      50% {
-        transform: scale(1.05);
+      33% {
+        transform: rotate( 3deg);
+      }
+      67% {
+        transform: rotate(-3deg);
       }
       100% {
-        transform: scale(0.95);
+        transform: rotate( 0deg);
       }
+    }
+
+    .theme--alive {
+      color: var(--white);
+      background: var(--green);
+    }
+
+    .theme--dead {
+      color: var(--red);
+      background: var(--black);
     }
   </style>
 </head>
 
 <body>
 
-  <div id="app" :style="{ background: background() }">
-    <p v-html="active" @click="animagus" :class="breathe()"></p>
+  <div class="app" :class="{ 'theme--alive': is_open() && is_alive(), 'theme--dead': !is_alive() }">
+    <p>
+      Click the box!
+      <br> The cat's...
+      <!--
+			 -->
+      <span v-html="cat" @click="quantum_fluctuation()" :class="{ jitter: is_alive() }"></span>
+      <!--
+			 -->!
+    </p>
   </div>
 
   <script>
@@ -70,41 +100,55 @@
       return out
     }
 
+    // rand returns a random item from an array
+    function rand(...arr) {
+      var x = Math.floor(Math.random() * arr.length)
+      return arr[x]
+    }
+
     var app = new Vue({
-      el: "#app",
+      el: ".app",
       data: {
-        active: emojify("sirius--man"),
-        // sirius is an object that contains two states: man and dog
-        sirius: {
-          man: emojify("sirius--man"),
-          dog: emojify("sirius--dog")
-        }
+        cat: emojify("box"),
+        alive_cats: [
+          emojify("cat--smile"),
+          emojify("cat--cheer"),
+          emojify("cat--laugh"),
+          emojify("cat--love"),
+          emojify("cat--smirk"),
+          emojify("cat--kiss"),
+          emojify("cat--fear"),
+          emojify("cat--sad"),
+          emojify("cat--mad")
+        ],
+        dead_cats: [
+          emojify("crossbones"),
+          emojify("skull")
+        ],
       },
       methods: {
-        // an animagus is a wizard whom can shapeshift
-        animagus: function () {
-          this.active = (
-            this.active == this.sirius.man ?
-              this.sirius.dog :
-              this.sirius.man
-          )
+        // is_open returns whether the box is open
+        is_open: function () {
+          return this.cat != emojify("box")
         },
-        // breathe returns the corresponding .breathe--*
-        breathe: function () {
+        // is_alive returns whether the cat is alive
+        is_alive: function () {
           return (
-            this.active == this.sirius.man ?
-              "breathe--man" :
-              "breathe--dog"
+            this.cat != emojify("crossbones") &&
+            this.cat != emojify("skull")
           )
         },
-        // background returns the corresponding background
-        background: function () {
-          return (
-            this.active == this.sirius.man ?
-              "" :
-              "black"
+        // quantum_fluctuation observes whether the cat is alive or dead
+        quantum_fluctuation: function () {
+          if (this.is_open()) {
+            this.cat = emojify("box")
+            return
+          }
+          this.cat = rand(
+            rand(...this.alive_cats),
+            rand(...this.dead_cats),
           )
-        },
+        }
       }
     })
 
