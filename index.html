@@ -10,45 +10,85 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
   <style>
     :root {
+      /* colors */
+      --white: #ffffff;
+      --orange: #ff691f;
+      --yellow: #fab81e;
+      --lightgreen: #7fdbb6;
+      --green: #19cf86;
+      --lightblue: #91d2fa;
+      --blue: #1b95e0;
+      --grey: #abb8c2;
+      --red: #e81c4f;
+      --pink: #f58ea8;
+      --purple: #981ceb;
+      --black: #000000;
+
+      /* font (default) */
       font: 1rem/1.175 "BlinkMacSystemFont", -apple-system, "Roboto", sans-serif;
     }
 
     #app {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: grid;
+      grid-template-areas: ". . . ." ". . . ." ". . . .";
+      padding: 96px;
+      grid-gap: 32px;
       width: 100vw;
       height: 100vh;
-      font-weight: 900;
-      font-size: 8rem;
-      color: hsl(0, 0%, 100%);
-      background: hsl(240, 100%, 67%);
-      user-select: none;
     }
 
     img {
-      width: 8rem;
-      height: 8rem;
+      width: 3.5rem;
+      height: 3.5rem;
       vertical-align: calc(-0.12109375em);
     }
 
-    .breathe--man {
-      animation: breathe 4.0s infinite;
+    .grid-item {
+      display: grid;
+      grid-template-rows: 65% 35%;
+      background: whitesmoke;
+      border-radius: 4px;
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 60px;
+      transition: transform 500ms;
     }
 
-    .breathe--dog {
-      animation: breathe 0.5s infinite;
+    .grid-item:hover {
+      transition: transform 500ms;
+      transform: scale(1.1);
     }
 
-    @keyframes breathe {
+    .grid-cell--top,
+    .grid-cell--bottom {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .grid-cell--top {
+      border-radius: 4px 4px 0 0;
+    }
+
+    .grid-cell--bottom {
+      font-weight: 900;
+      font-size: 1.75rem;
+    }
+
+    .bounce {
+      animation: bounce 1s;
+    }
+
+    @keyframes bounce {
       0% {
-        transform: scale(0.95);
+        transform: rotate( 0deg) scale(1.0);
       }
-      50% {
-        transform: scale(1.05);
+      33% {
+        transform: rotate( 12deg) scale(1.2);
+      }
+      67% {
+        transform: rotate(-12deg) scale(0.8);
       }
       100% {
-        transform: scale(0.95);
+        transform: rotate( 0deg) scale(1.0);
       }
     }
   </style>
@@ -56,8 +96,8 @@
 
 <body>
 
-  <div id="app" :style="{ background: background() }">
-    <p v-html="active" @click="animagus" :class="breathe()"></p>
+  <div id="app" :style="gradient(active)">
+    <swatch v-for="swatch in swatches" @click.native="activate(swatch)" :active="active" :swatch="swatch" :effect="gradient"></swatch>
   </div>
 
   <script>
@@ -70,41 +110,53 @@
       return out
     }
 
+    Vue.component("swatch", {
+      props: ["active", "swatch", "effect"],
+      template: `
+    <div class="grid-item">
+      <div class="grid-cell--top" :style="effect(swatch)" >
+        <span
+          v-html="swatch.emoji"
+          :class="{ bounce: swatch == active }"
+        ></span>
+      </div>
+      <div class="grid-cell--bottom" :style="{ color: swatch.color == '#ffffff' ? '#000000' : swatch.color }">
+        {{ swatch.color.toUpperCase() }}
+      </div>
+    </div>
+    `
+    })
+
     var app = new Vue({
       el: "#app",
       data: {
-        active: emojify("sirius--man"),
-        // sirius is an object that contains two states: man and dog
-        sirius: {
-          man: emojify("sirius--man"),
-          dog: emojify("sirius--dog")
-        }
+        active: "",
+        swatches: [
+          { emoji: emojify("lion"), color: "#ff691f" },
+          { emoji: emojify("tiger"), color: "#fab81e" },
+          { emoji: emojify("fish"), color: "#7fdbb6" },
+          { emoji: emojify("frog"), color: "#19cf86" },
+          { emoji: emojify("dolphin"), color: "#91d2fa" },
+          { emoji: emojify("whale"), color: "#1b95e0" },
+          { emoji: emojify("elephant"), color: "#abb8c2" },
+          { emoji: emojify("octopus"), color: "#e81c4f" },
+          { emoji: emojify("pig"), color: "#f58ea8" },
+          { emoji: emojify("unicorn"), color: "#981ceb" },
+          { emoji: emojify("rabbit"), color: "#ffffff" },
+          { emoji: emojify("wolf"), color: "#000000" },
+        ],
       },
       methods: {
-        // an animagus is a wizard whom can shapeshift
-        animagus: function () {
-          this.active = (
-            this.active == this.sirius.man ?
-              this.sirius.dog :
-              this.sirius.man
-          )
+        // activate actives a swatch (emoji/color)
+        activate: function (swatch) {
+          this.active = swatch
         },
-        // breathe returns the corresponding .breathe--*
-        breathe: function () {
-          return (
-            this.active == this.sirius.man ?
-              "breathe--man" :
-              "breathe--dog"
-          )
-        },
-        // background returns the corresponding background
-        background: function () {
-          return (
-            this.active == this.sirius.man ?
-              "" :
-              "black"
-          )
-        },
+        // gradient returns a precomposed gradient
+        gradient: function (swatch) {
+          return {
+            background: "linear-gradient(100deg, whitesmoke -100%, " + swatch.color + ")",
+          }
+        }
       }
     })
 
